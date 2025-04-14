@@ -8,10 +8,10 @@ Año: 2025 // Materia anual  <br>
 Numero de Equipo:   <br> 
 Nombre del equipo:   <br> 
 ## Integrantes 
-<li>
-  <lo>Thiago Intili https://github.com/ThiagoIntili </lo>
-  <lo>Camila Choque Mamani https://github.com/CamilaChoque </lo>
-  <lo>Luciano Tisera: https://github.com/SirCabobo </lo>
-  <lo>Daniel Aguero Silva https://github.com/daguerosilva </lo>
-  <lo>Nicolas Pose https://github.com/nicolasjpose</lo>
-</li>
+<lo>
+  <li>Thiago Intili https://github.com/ThiagoIntili </li>
+  <li>Camila Choque Mamani https://github.com/CamilaChoque </li>
+  <li>Luciano Tisera: https://github.com/SirCabobo </li>
+  <li>Daniel Aguero Silva https://github.com/daguerosilva </li>
+  <li>Nicolas Pose https://github.com/nicolasjpose</li>
+</lo>
