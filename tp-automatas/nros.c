@@ -5,6 +5,9 @@
 #include <stdbool.h>
 
 #define MAX_BUFFER 100
+#define MAX_TOKENS 100
+#define MAX_LEN 50
+
 
 // Función inciso 2
 int char_a_int(char c) {
@@ -44,43 +47,54 @@ bool es_operador(char caracter) {
 }
 
 //funcion para tokenizar la expresión
-int tokenizar(char* expresion, int* numeros, char* operadores) {
-    int pos_numero = 0;
-    int pos_operador = 0;
+int tokenizar(const char* expresion, char tokens[MAX_TOKENS][MAX_LEN]) {
     int i = 0;
-    char numero_actual[MAX_BUFFER]; //buffer que va acumulando cada numero en medio de los operadores
-    int pos_buffer = 0;
+    int num_tokens = 0;
 
     while (expresion[i] != '\0') {
 
-        if (isdigit(expresion[i])) {
-            numero_actual[pos_buffer] = expresion[i];
-            pos_buffer++;
-        
-        } else if (es_operador(expresion[i])) {
+        if (isdigit(expresion[i]) || (expresion[i] == '-' && i == 0)) {
+            int j = 0;
 
-            numero_actual[pos_buffer] = '\0';
-            numeros[pos_numero] = string_a_int(numero_actual);
+            if(expresion[i] == '-') {
+                tokens[num_tokens][j] = expresion[i];
+                j++;
+                i++;
+            }
 
-            pos_numero++;
-            pos_buffer = 0;
-            
-            operadores[pos_operador] = expresion[i];
-            pos_operador++;
+            while (isdigit(expresion[i])) {
+                tokens[num_tokens][j] = expresion[i];
+                j++;
+                i++;
+            }
+            tokens[num_tokens][j] = '\0';
+            num_tokens++;
         }
-        i++;
+
+        else if (es_operador(expresion[i])){
+            tokens[num_tokens][0] = expresion[i];
+            tokens[num_tokens][1] = '\0';
+            num_tokens++;
+            i++;
+        }
+            else {
+                i++;
+            }
     }
-    
-    numero_actual[pos_buffer] = '\0';
-    numeros[pos_numero] = string_a_int(numero_actual);
-    pos_numero++;
-    
-    return pos_numero; 
+
+    return num_tokens; // cantidad de tokens
 }
 
-int main()
-{
-    printf("Hello World");
+int main() {
+    char expresion[] = "-12+34*5-2";
+    char tokens[MAX_TOKENS][MAX_LEN];
+
+    int cantidad = tokenizar(expresion, tokens);
+
+    printf("Tokens:\n");
+    for (int i = 0; i < cantidad; i++) {
+        printf("%s\n", tokens[i]);
+    }
 
     return 0;
 }
