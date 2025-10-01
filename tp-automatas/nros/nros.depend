@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1759324253 source:c:\users\ariel\desktop\camila\aescolarlife\universitario\inuniversitario\ciclo-lectivo-2025\sintaxis y semantica de los lenguajes (sysl)\ejercicios\tp-automatas\nros\main.c
+	<stdio.h>
+	<stdlib.h>
+	<ctype.h>
+	<string.h>
+	<stdbool.h>
+	"infijaToPostfija.c"
+
+1759324259 c:\users\ariel\desktop\camila\aescolarlife\universitario\inuniversitario\ciclo-lectivo-2025\sintaxis y semantica de los lenguajes (sysl)\ejercicios\tp-automatas\nros\infijatopostfija.c
+	<stdlib.h>
+
