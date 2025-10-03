@@ -10,7 +10,7 @@
 #define MAX_LEN 50
 
 
-// Función inciso 2
+// Funciï¿½n inciso 2
 int char_a_int(char c) {
     if (c >= '0' && c <= '9') {
         return c - '0';
@@ -27,6 +27,14 @@ int string_a_int(char* expresion) {
 
     int i = 0;
     int resultado = 0;
+    int signo = 1;
+
+    if(expresion[i] == '-') {
+        signo = -1;
+        i++;
+    } else if(expresion[i] == '+') {
+        i++;
+    }
 
     while(expresion[i] != '\0'){
         int digito = char_a_int(expresion[i]);
@@ -40,19 +48,24 @@ int string_a_int(char* expresion) {
         i++;
     }
 
-    return resultado;
+    return resultado * signo;
 }
 
 bool es_operador(char caracter) {
     return (caracter == '+' || caracter == '-' || caracter == '*' || caracter == '/');
 }
 
-//funcion para tokenizar la expresión
+//funcion para tokenizar la expresiï¿½n
 int tokenizar(const char* expresion, char tokens[MAX_TOKENS][MAX_LEN]) {
     int i = 0;
     int num_tokens = 0;
 
     while (expresion[i] != '\0') {
+
+        if(expresion[i] == ' ') {
+            i++;
+            continue;
+        }
 
         if (isdigit(expresion[i]) || (expresion[i] == '-' && i == 0)) {
             int j = 0;
@@ -88,7 +101,7 @@ int tokenizar(const char* expresion, char tokens[MAX_TOKENS][MAX_LEN]) {
 
 int main() {
     char expresion[MAX_BUFFER];
-    printf("Ingrese una expresión aritmetica: ");
+    printf("Ingrese una expresiï¿½n aritmetica: ");
     scanf("%s",expresion);
 
     char tokens[MAX_TOKENS][MAX_LEN],postfija[MAX_TOKENS][MAX_LEN];

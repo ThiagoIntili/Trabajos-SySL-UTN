@@ -8,6 +8,7 @@ typedef struct pila{
       //char datos[MAX_ELEMENTOS]; chau
       char datos[MAX_ELEMENTOS][MAX_LEN];
 }Pila;
+
 Pila * crear(){
 	Pila *p;
 	p=(Pila *)malloc(sizeof(Pila));
@@ -19,17 +20,15 @@ Pila * crear(){
 int estaVacia(Pila pila){
 	if(pila.total==0){
 		return 1;
-	}else{
-		return 0;
 	}
+	return 0;
 }
 
 int estaLlena(Pila pila){
 	if(pila.total==MAX_ELEMENTOS){
 		return 1;
-	}else{
-		return 0;
 	}
+	return 0;
 }
 
 int push(Pila *pila, char* dato){ //chau Pila *pila, char dato
@@ -38,9 +37,8 @@ int push(Pila *pila, char* dato){ //chau Pila *pila, char dato
 		pila->indice++;
 		pila->total++;
 		return 1;
-	}else{
-		return 0;
 	}
+	return 0;
 }
 
 /*char pop(Pila *pila){
@@ -60,9 +58,8 @@ int pop(Pila *pila, char* buffer){
         pila->indice--;
         pila->total--;
         return 1;
-    } else {
-        return 0;
-    }
+    } 
+    return 0;
 }
 int nivelDePrecedencia(char* operador){
 	//int nivel=0;
@@ -77,7 +74,7 @@ int nivelDePrecedencia(char* operador){
 		          break;
 		case "/": nivel =2;
 		          break;
-		case "$": nivel =3;//NOS SERVIRÁ PARA LA POTENCIA
+		case "$": nivel =3;//NOS SERVIRï¿½ PARA LA POTENCIA
 		          break;
 	} chau*/
 	if(strcmp(operador, "(") == 0){
@@ -178,7 +175,7 @@ int infijaToPostfija(char infija[][MAX_LEN], int longitud,char postfija[][MAX_LE
 		}else if (elemento == ")"){
 			//operador=pop(pila);
 			int value=pop(pila,operador);
-			while(!estaVacia(*pila) && operador!="(") {
+			while(!estaVacia(*pila) && strcmp(operador, "(") != 0){
 				strcpy(postfija[j], operador);
 				j++;
 				int value=pop(pila,operador);//operador=pop(pila);
