@@ -4,13 +4,12 @@
 #include <string.h>
 #include <stdbool.h>
 #include "infijaToPostfija.c"
-
 #define MAX_BUFFER 100
 #define MAX_TOKENS 100
 #define MAX_LEN 50
 
 
-// Funci�n inciso 2
+// Función inciso 2
 int char_a_int(char c) {
     if (c >= '0' && c <= '9') {
         return c - '0';
@@ -27,14 +26,6 @@ int string_a_int(char* expresion) {
 
     int i = 0;
     int resultado = 0;
-    int signo = 1;
-
-    if(expresion[i] == '-') {
-        signo = -1;
-        i++;
-    } else if(expresion[i] == '+') {
-        i++;
-    }
 
     while(expresion[i] != '\0'){
         int digito = char_a_int(expresion[i]);
@@ -48,48 +39,21 @@ int string_a_int(char* expresion) {
         i++;
     }
 
-    return resultado * signo;
+    return resultado;
 }
 
-int esOperador(char* elemento){
-    if(strcmp(elemento, "+") == 0 ||
-       strcmp(elemento, "-") == 0 ||
-       strcmp(elemento, "*") == 0 ||
-       strcmp(elemento, "/") == 0 ||
-       strcmp(elemento, "$") == 0){
-        return 1;
-    }
-    return 0;
+bool es_operador(char caracter) {
+    return (caracter == '+' || caracter == '-' || caracter == '*' || caracter == '/');
 }
 
-int es_parentesis(char caracter) {
-    if(strcmp(caracter, "(") == 0 || strcmp(caracter, ")") == 0) {
-        return 1;
-    }
-    return 0;
-}
-
-int esOperando(char* elemento){ //char elemento chau
-
-    if(string_a_int(elemento)!=-1){
-        return 1;
-    }
-    return 0;
-}
-
-//funcion para tokenizar la expresi�n
+//funcion para tokenizar la expresión
 int tokenizar(const char* expresion, char tokens[MAX_TOKENS][MAX_LEN]) {
     int i = 0;
     int num_tokens = 0;
 
     while (expresion[i] != '\0') {
 
-        if(expresion[i] == ' ') {
-            i++;
-            continue;
-        }
-
-        if (isdigit(expresion[i]) || (expresion[i] == '-' && (i == 0 || es_operador(expresion[i-1])))) {
+        if (isdigit(expresion[i]) || (expresion[i] == '-' && i == 0)) {
             int j = 0;
 
             if(expresion[i] == '-') {
@@ -113,43 +77,115 @@ int tokenizar(const char* expresion, char tokens[MAX_TOKENS][MAX_LEN]) {
             num_tokens++;
             i++;
         }
-
-        else if (es_parentesis(expresion[i])){
-            tokens[num_tokens][0] = expresion[i];
-            tokens[num_tokens][1] = '\0';
-            num_tokens++;
-            i++;
-        }
-        
-        else {
-            i++;
-        }
+            else {
+                i++;
+            }
     }
 
     return num_tokens; // cantidad de tokens
 }
 
+typedef struct nodoPila{
+    char* token;
+    struct nodoPila* sig;
+}NodoPila;
+
+void destruirNodo(NodoPila* nodo){
+    nodo->sig=NULL;
+    free(nodo);
+}
+
+void pushToken(NodoPila** pila, char* token){
+    NodoPila* nodoNuevo = (NodoPila*)malloc(sizeof(NodoPila));
+    nodoNuevo->token=token;
+    nodoNuevo->sig=*pila;
+    *pila = nodoNuevo;
+}
+
+char* popToken(NodoPila** pila_){
+    if (*pila_ == NULL) return NULL;
+    char* token;
+    token=(*pila_)->token;
+    NodoPila* aux=*pila_;
+
+    *pila_=aux->sig;
+    free(aux);//libera memoria
+    return token;
+}
+
+void operarSegunOperador(char* operador,char* operando1, char* operando2, char resultadoAlfa[MAX_LEN]){
+    printf("operador: %s\n",operador);
+    printf("operando1: %s\n",operando1);
+    printf("operando2: %s\n",operando2);
+    int resultado=0;
+    if(operador[0]=='+'){
+        resultado=string_a_int(operando1)+string_a_int(operando2);
+    }
+    if(operador[0]=='*'){
+        resultado=string_a_int(operando1)*string_a_int(operando2);
+    }
+    if(operador[0]=='/'){
+        resultado=string_a_int(operando1)/string_a_int(operando2);
+    }
+    if(operador[0]=='-'){
+        resultado=string_a_int(operando1)-string_a_int(operando2);
+    }
+    sprintf(resultadoAlfa, "%d", resultado); //convertir en char
+
+}
+
 int main() {
+    NodoPila*pila=NULL;
+    NodoPila*pilaInvertida=NULL;
+    NodoPila*pilaAux=NULL;
+    char* token;
+    char resultado[MAX_LEN];
+
     char expresion[MAX_BUFFER];
-    printf("Ingrese una expresi�n aritmetica: ");
-    scanf("%s",expresion);
-
     char tokens[MAX_TOKENS][MAX_LEN],postfija[MAX_TOKENS][MAX_LEN];
-    int cantidad = tokenizar(expresion, tokens);
+    int cantTokens=0;
 
+    printf("Ingrese una expresión aritmetica: ");
+    scanf("%s",expresion);
+    cantTokens = tokenizar(expresion, tokens);
     printf("Tokenizado: ");
-    for (int i = 0; i < cantidad; i++) {
+    for (int i = 0; i < cantTokens; i++) {
         printf("%s ", tokens[i]);
     }
     printf("\n");
 
 
-	int Lpostfija=infijaToPostfija(tokens,cantidad,postfija);
-	printf("Notacion polaca inversa: ");
+	int Lpostfija=infijaToPostfija(tokens,cantTokens,postfija); //Lpostfija es lo mismo que cantTokens
+	printf("Notacion polaca inversa (push pila): ");
 	for (int k = 0; k < Lpostfija; k++) {
         printf("%s ", postfija[k]);
+        pushToken(&pila,postfija[k]);
     }
 
+    printf("\n\nPilaInvertida: ");
+	for (int k = 0; k < Lpostfija; k++) {
+        token=popToken(&pila);
+        printf("%s ", token);
+        pushToken(&pilaInvertida,token);
+    }
+
+    printf("\nEvaluando cada componente:\n");
+    for (int k = 0; k < Lpostfija; k++) {
+
+        token=popToken(&pilaInvertida);
+        printf("Elemento de la pilaInvertida: %s\n",token);
+        if(!esOperador(token)){
+            printf("A poner pilaAux: ");
+            pushToken(&pilaAux,token);
+            printf("%s", token);
+        }else{
+            operarSegunOperador(token,popToken(&pilaAux),popToken(&pilaAux),resultado);
+            printf("resultado: %s\n",resultado);
+            pushToken(&pilaAux,resultado);
+        }
+        printf("\n-fin de analisis-\n");
+
+    }
 
     return 0;
 }
