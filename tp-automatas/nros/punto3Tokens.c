@@ -51,8 +51,30 @@ int string_a_int(char* expresion) {
     return resultado * signo;
 }
 
-bool es_operador(char caracter) {
-    return (caracter == '+' || caracter == '-' || caracter == '*' || caracter == '/');
+int esOperador(char* elemento){
+    if(strcmp(elemento, "+") == 0 ||
+       strcmp(elemento, "-") == 0 ||
+       strcmp(elemento, "*") == 0 ||
+       strcmp(elemento, "/") == 0 ||
+       strcmp(elemento, "$") == 0){
+        return 1;
+    }
+    return 0;
+}
+
+int es_parentesis(char caracter) {
+    if(strcmp(caracter, "(") == 0 || strcmp(caracter, ")") == 0) {
+        return 1;
+    }
+    return 0;
+}
+
+int esOperando(char* elemento){ //char elemento chau
+
+    if(string_a_int(elemento)!=-1){
+        return 1;
+    }
+    return 0;
 }
 
 //funcion para tokenizar la expresi�n
@@ -67,7 +89,7 @@ int tokenizar(const char* expresion, char tokens[MAX_TOKENS][MAX_LEN]) {
             continue;
         }
 
-        if (isdigit(expresion[i]) || (expresion[i] == '-' && i == 0)) {
+        if (isdigit(expresion[i]) || (expresion[i] == '-' && (i == 0 || es_operador(expresion[i-1])))) {
             int j = 0;
 
             if(expresion[i] == '-') {
@@ -91,9 +113,17 @@ int tokenizar(const char* expresion, char tokens[MAX_TOKENS][MAX_LEN]) {
             num_tokens++;
             i++;
         }
-            else {
-                i++;
-            }
+
+        else if (es_parentesis(expresion[i])){
+            tokens[num_tokens][0] = expresion[i];
+            tokens[num_tokens][1] = '\0';
+            num_tokens++;
+            i++;
+        }
+        
+        else {
+            i++;
+        }
     }
 
     return num_tokens; // cantidad de tokens
