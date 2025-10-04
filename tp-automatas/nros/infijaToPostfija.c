@@ -170,9 +170,9 @@ int infijaToPostfija(char infija[][MAX_LEN], int longitud,char postfija[][MAX_LE
 				}while(!estaVacia(*pila) && seDebeContinuar);
 			}
 			push(pila,elemento);
-		}else if (elemento == "("){
+		}else if (strcmp(elemento, "(") == 0){
 			push(pila,elemento);
-		}else if (elemento == ")"){
+		}else if (strcmp(elemento, ")") == 0){
 			//operador=pop(pila);
 			int value=pop(pila,operador);
 			while(!estaVacia(*pila) && strcmp(operador, "(") != 0){
@@ -190,6 +190,8 @@ int infijaToPostfija(char infija[][MAX_LEN], int longitud,char postfija[][MAX_LE
 	}
 	//postfija[j]='\0';
     //return postfija;
+	free(pila);
+
     return j;
 }
 
