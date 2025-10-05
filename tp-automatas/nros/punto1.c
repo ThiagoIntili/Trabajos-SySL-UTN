@@ -1,8 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
-#include <stdbool.h>
+#include <stdio.h>      // Para funciones de entrada/salida como printf, fgets, fopen, fclose, perror
+#include <stdlib.h>     // Para funciones de utilidad general (no se usa explícitamente, pero es común para exit, malloc, etc.)
+#include <ctype.h>      // Para funciones de manejo de caracteres como isdigit, isxdigit
+#include <string.h>     // Para funciones de manejo de cadenas como strcpy, strtok, strlen, strcspn
+#include <stdbool.h>    // Para usar el tipo de dato bool y los valores true/false
 
 #define MAX_BUFFER 100
 #define MAX_TOKENS 100
