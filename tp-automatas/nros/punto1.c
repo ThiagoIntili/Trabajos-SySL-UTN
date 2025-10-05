@@ -50,7 +50,7 @@ void analizarCadena(const char* input) {
 
 int esDecimal(const char* token) {
     int i = 0;
-    if (token[i] == '+' || token[i] == '-') i++;
+    if (token[i] == '-') i++;
     if (!isdigit(token[i])) return 0;
     while (isdigit(token[i])) i++;
     return token[i] == '\0';
