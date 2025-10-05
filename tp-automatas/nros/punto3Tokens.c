@@ -117,22 +117,68 @@ void operarSegunOperador(char* operador,char* operando1, char* operando2, char r
     printf("operador: %s\n",operador);
     printf("operando1: %s\n",operando1);
     printf("operando2: %s\n",operando2);
+    
+    int operador1 = string_a_int(operando1);
+    int operador2 = string_a_int(operando2);
     int resultado=0;
-    if(operador[0]=='+'){
-        resultado=string_a_int(operando1)+string_a_int(operando2);
-    }
-    if(operador[0]=='*'){
-        resultado=string_a_int(operando1)*string_a_int(operando2);
-    }
-    if(operador[0]=='/'){
-        resultado=string_a_int(operando1)/string_a_int(operando2);
-    }
-    if(operador[0]=='-'){
-        resultado=string_a_int(operando1)-string_a_int(operando2);
-    }
-    sprintf(resultadoAlfa, "%d", resultado); //convertir en char
 
+    switch(operador[0]) {
+        case '+': 
+            resultado = operador1 + operador2; 
+            break;
+        case '-': 
+            resultado = operador1 - operador2; 
+            break;
+        case '*': 
+            resultado = operador1 * operador2; 
+            break;
+        case '/': 
+            resultado = (operador2 != 0) ? operador1 / operador2 : 0; 
+            break;
+    }
+
+    sprintf(resultadoAlfa, "%d", resultado); //convertir en char
 }
+
+void leer_expresion(char* expresion) {
+    printf("Ingrese una expresión aritmética: ");
+    scanf("%s", expresion);
+}
+
+void mostrar_tokens(char tokens[MAX_TOKENS][MAX_LEN], int cantidad) {
+    printf("\nTokens:\n");
+    for (int i = 0; i < cantidad; i++) {
+        printf("%s ", tokens[i]);
+    }
+    printf("\n");
+}
+
+void mostrar_postfija(char postfija[MAX_TOKENS][MAX_LEN], int cantidad) {
+    printf("\nNotación postfija:\n");
+    for (int i = 0; i < cantidad; i++) {
+        printf("%s ", postfija[i]);
+    }
+    printf("\n");
+}
+
+int leer_expresion_archivo(char* expresion, char* nombreArchivo) {
+    FILE* archivo = fopen(nombreArchivo, "r");
+    
+    if (!archivo) {
+        printf("Error: No se pudo abrir el archivo '%s'\n", nombreArchivo);
+        return 0;  
+    }
+    
+    if (!fgets(expresion, MAX_BUFFER, archivo)) {
+        printf("Error: No se pudo leer del archivo\n");
+        fclose(archivo);
+        return 0;
+    }
+    
+    fclose(archivo);
+    return 1;
+}
+
 
 int main() {
     NodoPila*pila=NULL;
@@ -145,14 +191,10 @@ int main() {
     char tokens[MAX_TOKENS][MAX_LEN],postfija[MAX_TOKENS][MAX_LEN];
     int cantTokens=0;
 
-    printf("Ingrese una expresión aritmetica: ");
-    scanf("%s",expresion);
+    leer_expresion(expresion);    
+
     cantTokens = tokenizar(expresion, tokens);
-    printf("Tokenizado: ");
-    for (int i = 0; i < cantTokens; i++) {
-        printf("%s ", tokens[i]);
-    }
-    printf("\n");
+    mostrar_tokens(tokens, cantTokens);
 
 
 	int Lpostfija=infijaToPostfija(tokens,cantTokens,postfija); //Lpostfija es lo mismo que cantTokens
