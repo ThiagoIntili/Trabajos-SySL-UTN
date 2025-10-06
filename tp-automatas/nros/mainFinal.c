@@ -1,8 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
-#include <stdbool.h>
+#include <stdio.h>      // Para funciones de entrada/salida como printf, fgets, fopen, fclose, perror
+#include <stdlib.h>     // Para funciones de utilidad general (no se usa explícitamente, pero es común para exit, malloc, etc.)
+#include <ctype.h>      // Para funciones de manejo de caracteres como isdigit, isxdigit
+#include <string.h>     // Para funciones de manejo de cadenas como strcpy, strtok, strlen, strcspn
+#include <stdbool.h>    // Para usar el tipo de dato bool y los valores true/false
 
 #define MAX_BUFFER 100
 #define MAX_TOKENS 100
@@ -10,62 +10,181 @@
 #define MAX_ELEMENTOS 10
 #define MAX_LINE 1024
 
+// codigo punto 1 
+
+int es_miembro(char elemento, char lista[], int tamano) {
+    for (int i = 0; i < tamano; i++) {
+        if (lista[i] == elemento) {
+            return 1; // Elemento encontrado
+        }
+    }
+    return 0; // Elemento no encontrado
+}
+
+void agregar_a_palabra(char* palabra, char c) {
+    int len = strlen(palabra);
+    palabra[len] = c;
+} 
+
+int columnaDec(char c) {
+    if(c == '-') 
+        return 0; 
+    if(c == '0') 
+        return 1;
+    if(isdigit(c))
+        return 2;
+    if(c == '#') 
+        return 3;
+    return 4; 
+}
+
+int columna(char c) {
+    char nums[12] = {'A','B','C','D','E','F','a','b','c','d','e','f'}; 
+    if(c == '0') 
+        return 0; 
+    if(isdigit(c) || es_miembro(c, nums , 12))
+        return 2;
+    if(c == '#') 
+        return 3;
+    if(c == 'x' || c == 'X') {
+        return 1; 
+    }
+    return 5; 
+}
+
+int columnaOctal(char c) {
+    char nums[7] = {'1','2','3','4','5','6','7'}; 
+    if(c == '0') 
+        return 0; 
+    if(es_miembro(c, nums , 7))
+        return 1;
+    if(c == '#') 
+        return 2;
+    return 3; 
+}
+
 int esDecimal(const char* token) {
-    int i = 0;
-    if (token[i] == '-') i++;
-    if (!isdigit(token[i])) return 0;
-    while (isdigit(token[i])) i++;
-    return token[i] == '\0';
+    int countDecimal = 0;
+    char palabra[MAX_LEN] = "";
+    static int ttdec[5][5] = {
+                        {3,2,1,4,4},
+                        {4,1,1,0,4},
+                        {4,4,4,0,4},
+                        {4,4,1,4,4},
+                        {4,4,4,4,4}
+                        };
+    int e = 0; // estado inicial
+    int i = 0; // índice del carácter actual
+    int c = token[i]; // carácter actual
+    while(c!='\0') {
+        e = ttdec[e][columnaDec(c)]; 
+        if(c != '#') 
+            agregar_a_palabra(palabra, c);        
+        if(e == 0) {
+            printf("DECIMAL: %s\n", palabra);
+            memset(palabra, 0, sizeof(palabra)); // Reiniciar palabra
+            countDecimal++;
+        }
+        i++; 
+        c = token[i]; 
+    }
+    printf("DECIMALES: %d\n", countDecimal);
+    if(e == 0) {
+        return 1; // es decimal
+    } else if(e == 4) {
+        return 2; // es error lexico
+    }
+    return 0; // no es decimal
 }
 
 int esOctal(const char* token) {
-    if (token[0] != '0') return 0;
-    for (int i = 1; token[i] != '\0'; i++) {
-        if (token[i] < '0' || token[i] > '7') return 0;
+    int countOctal = 0;
+    char palabra[MAX_LEN] = "";
+    static int ttoct[4][4] = {
+                        {1,3,3,3},
+                        {2,2,3,3},
+                        {2,2,0,3},
+                        {3,3,3,3},
+                        };
+    int e = 0; // estado inicial
+    int i = 0; // índice del carácter actual
+    int c = token[i]; // carácter actual
+    while(c!='\0') {
+        e = ttoct[e][columnaOctal(c)]; 
+        if(c != '#') 
+            agregar_a_palabra(palabra, c);        
+        if(e == 0) {
+            printf("OCTAL: %s\n", palabra);
+            memset(palabra, 0, sizeof(palabra)); // Reiniciar palabra
+            countOctal++;
+        }
+        i++; 
+        c = token[i]; 
     }
-    return 1;
+    printf("Octales: %d\n", countOctal);
+    if(e == 0) {
+        return 1; // es octal
+    } else if(e == 3) {
+        return 2; // es error lexico
+    }
+    return 0; // no es octal
 }
 
 int esHexadecimal(const char* token) {
-    if (!(token[0] == '0' && (token[1] == 'x' || token[1] == 'X')))
-        return 0;
-    if (token[2] == '\0') return 0; // debe tener al menos un dígito después de 0x
-
-    for (int i = 2; token[i] != '\0'; i++) {
-        if (!isxdigit(token[i])) return 0;
+    char palabra[MAX_LEN] = "";
+    int countHex = 0;
+    static int tthex[6][6] = {
+                        {1,5,5,5,5},
+                        {5,2,5,5,5},
+                        {3,5,3,5,5},
+                        {3,5,3,0,5},
+                        {5,5,3,5,5},
+                        {5,5,5,5,5}
+                        };
+    int e = 0; // estado inicial
+    int i = 0; // índice del carácter actual
+    char c = token[i]; // carácter actual
+    while(c!='\0') {
+        e = tthex[e][columna(c)]; 
+        if(c != '#') 
+            agregar_a_palabra(palabra, c);        
+        if(e == 0) {
+            printf("HEXADECIMAL: %s\n", palabra);
+            memset(palabra, 0, sizeof(palabra)); // Reiniciar palabra
+            countHex++;
+        }
+        i++; 
+        c = token[i]; 
     }
-    return 1;
+    printf("Hexadecimales: %d\n", countHex);
+    if(e == 0) {
+        return 1; // es hexadecimal
+    } else if(e == 5) {
+        return 2; // es error lexico
+    }
+    return 0; // no es hexadecimal
 }
 
-void analizarCadena(const char* input) {
-    char copia[MAX_LINE];
-    strcpy(copia, input);
-    char *token = strtok(copia, "#");
+void analizarCadena(const char* token) {
 
-    int countDecimal = 0, countOctal = 0, countHex = 0, countError = 0;
-
+    int countDecimal = 0,  countError = 0;
+    
     while (token != NULL) {
-        if (esHexadecimal(token)) {
-            printf("HEX: %s\n", token);
-            countHex++;
-        } else if (esOctal(token)) {
-            printf("OCT: %s\n", token);
-            countOctal++;
-        } else if (esDecimal(token)) {
-            printf("DEC: %s\n", token);
-            countDecimal++;
-        } else {
-            printf("ERROR: %s\n", token);
-            countError++;
-        }
-
+        if (esDecimal(token) == 2 && esOctal(token) != 1 && esHexadecimal(token) != 1) {
+                printf("ERROR LEXICO DECIMAL: %s\n", token);
+                countError++;
+        } else if (esOctal(token) == 2 && esDecimal(token) != 1 && esHexadecimal(token) != 1) {
+                printf("ERROR LEXICO OCTAL: %s\n", token);
+                countError++;
+        } else if(esHexadecimal(token) == 2 && esDecimal(token) != 1 && esOctal(token) != 1) {
+                printf("ERROR LEXICO HEXADECIMAL: %s\n", token);
+                countError++;
+        } 
         token = strtok(NULL, "#");
     }
 
     printf("\nResumen:\n");
     printf("Decimales: %d\n", countDecimal);
-    printf("Octales: %d\n", countOctal);
-    printf("Hexadecimales: %d\n", countHex);
     printf("Errores: %d\n", countError);
 }
 
@@ -463,12 +582,12 @@ int main() {
     int opcion;
     
     printf("TP AUTOMATAS - SINTAXIS Y SEMANTICA DE LOS LENGUAJES\n\n");
-    printf("Seleccione una opción:\n");
-    printf("1. Analizar cadena con números\n");
-    printf("2. Evaluar expresión aritmética dada por terminal\n");
-    printf("3. Evaluar expresión aritmética dada por archivo\n");
+    printf("Seleccione una opcion:\n");
+    printf("1. Analizar cadena con numeros\n");
+    printf("2. Evaluar expresion aritmetica dada por terminal\n");
+    printf("3. Evaluar expresion aritmetica dada por archivo\n");
     printf("4. Salir\n");
-    printf("\nOpción: ");
+    printf("\nOpcion: ");
     scanf("%d", &opcion);
     
     switch(opcion) {
@@ -483,11 +602,12 @@ int main() {
             evaluar_expresion(expresion);
             break;
         case 3:
-            char nombreArchivo[MAX_BUFFER];
+            /* char nombreArchivo[MAX_BUFFER];
             leer_nombre_archivo(nombreArchivo);
             leer_expresion_archivo(expresion, nombreArchivo);
             evaluar_expresion(expresion);
             break;
+            */ 
         case 4:
             printf("\nSaliendo...\n");
             break;
