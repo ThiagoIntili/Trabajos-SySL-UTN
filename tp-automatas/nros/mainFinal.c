@@ -88,7 +88,7 @@ int esDecimal(const char* token) {
         i++; 
         c = token[i]; 
     }
-    printf("DECIMALES: %d\n", countDecimal);
+    printf("Decimales: %d\n", countDecimal);
     if(e == 0) {
         return 1; // es decimal
     } else if(e == 4) {
@@ -167,7 +167,7 @@ int esHexadecimal(const char* token) {
 
 void analizarCadena(const char* token) {
 
-    int countDecimal = 0,  countError = 0;
+    int countError = 0;
     
     while (token != NULL) {
         if (esDecimal(token) == 2 && esOctal(token) != 1 && esHexadecimal(token) != 1) {
@@ -184,7 +184,6 @@ void analizarCadena(const char* token) {
     }
 
     printf("\nResumen:\n");
-    printf("Decimales: %d\n", countDecimal);
     printf("Errores: %d\n", countError);
 }
 
