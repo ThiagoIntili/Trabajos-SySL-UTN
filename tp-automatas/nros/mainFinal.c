@@ -45,26 +45,25 @@ int columna(char c) {
     if(isdigit(c) || es_miembro(c, nums , 12))
         return 2;
     if(c == '#')
-        return 3;
+    return 3;
     if(c == 'x' || c == 'X') {
         return 1;
-    }
-    return 5;
+    } else 
+        return 4;
 }
 
 int columnaOctal(char c) {
     char nums[7] = {'1','2','3','4','5','6','7'};
     if(c == '0')
-        return 0;
+    return 0;
     if(es_miembro(c, nums , 7))
-        return 1;
+    return 1;
     if(c == '#')
-        return 2;
+    return 2;
     return 3;
 }
 
-int esDecimal(const char* token) {
-    int countDecimal = 0;
+int esDecimal(char* cadena) {
     char palabra[MAX_LEN] = "";
     static int ttdec[5][5] = {
                         {3,2,1,4,4},
@@ -75,30 +74,23 @@ int esDecimal(const char* token) {
                         };
     int e = 0; // estado inicial
     int i = 0; // índice del carácter actual
-    int c = token[i]; // carácter actual
+    int c = cadena[i]; // carácter actual
     while(c!='\0') {
         e = ttdec[e][columnaDec(c)];
         if(c != '#')
             agregar_a_palabra(palabra, c);
         if(e == 0) {
-            printf("DECIMAL: %s\n", palabra);
-            memset(palabra, 0, sizeof(palabra)); // Reiniciar palabra
-            countDecimal++;
+            printf("Decimal: %s\n", palabra);
+            return 1; // es decimal
+        } else if (e == 4) {
+            return 2; // es error lexico
         }
         i++;
-        c = token[i];
+        c = cadena[i];
     }
-    printf("DECIMALES: %d\n", countDecimal);
-    if(e == 0) {
-        return 1; // es decimal
-    } else if(e == 4) {
-        return 2; // es error lexico
-    }
-    return 0; // no es decimal
 }
 
-int esOctal(const char* token) {
-    int countOctal = 0;
+int esOctal(char* cadena) {
     char palabra[MAX_LEN] = "";
     static int ttoct[4][4] = {
                         {1,3,3,3},
@@ -108,29 +100,23 @@ int esOctal(const char* token) {
                         };
     int e = 0; // estado inicial
     int i = 0; // índice del carácter actual
-    int c = token[i]; // carácter actual
+    int c = cadena[i]; // carácter actual
     while(c!='\0') {
         e = ttoct[e][columnaOctal(c)];
         if(c != '#')
             agregar_a_palabra(palabra, c);
         if(e == 0) {
-            printf("OCTAL: %s\n", palabra);
-            memset(palabra, 0, sizeof(palabra)); // Reiniciar palabra
-            countOctal++;
+            printf("Octal: %s\n", palabra);
+            return 1; // es octal
+        } else if (e == 3) {
+            return 2; // es error lexico
         }
         i++;
-        c = token[i];
+        c = cadena[i];
     }
-    printf("Octales: %d\n", countOctal);
-    if(e == 0) {
-        return 1; // es octal
-    } else if(e == 3) {
-        return 2; // es error lexico
-    }
-    return 0; // no es octal
 }
 
-int esHexadecimal(const char* token) {
+int esHexadecimal(char* cadena) {
     char palabra[MAX_LEN] = "";
     int countHex = 0;
     static int tthex[6][6] = {
@@ -143,48 +129,48 @@ int esHexadecimal(const char* token) {
                         };
     int e = 0; // estado inicial
     int i = 0; // índice del carácter actual
-    char c = token[i]; // carácter actual
+    char c = cadena[i]; // carácter actual
     while(c!='\0') {
         e = tthex[e][columna(c)];
         if(c != '#')
             agregar_a_palabra(palabra, c);
         if(e == 0) {
-            printf("HEXADECIMAL: %s\n", palabra);
-            memset(palabra, 0, sizeof(palabra)); // Reiniciar palabra
-            countHex++;
+            printf("Hexadecimal: %s\n", palabra);
+            return 1; // es hexadecimal
+        } else if (e == 5) {
+            return 2; // es error lexico
         }
         i++;
-        c = token[i];
+        c = cadena[i];
     }
-    printf("Hexadecimales: %d\n", countHex);
-    if(e == 0) {
-        return 1; // es hexadecimal
-    } else if(e == 5) {
-        return 2; // es error lexico
-    }
-    return 0; // no es hexadecimal
 }
 
-void analizarCadena(const char* token) {
+void analizarCadena(char* cadena) {
+    int countDecimal = 0, countOctal = 0, countHex = 0, countError = 0;
+    char copia[MAX_LINE];
+    strcpy(copia, cadena);
 
-    int countDecimal = 0,  countError = 0;
-
+    char* token = strtok(copia, "#");
+    token[strlen(token)] = '#';
     while (token != NULL) {
-        if (esDecimal(token) == 2 && esOctal(token) != 1 && esHexadecimal(token) != 1) {
-                printf("ERROR LEXICO DECIMAL: %s\n", token);
-                countError++;
-        } else if (esOctal(token) == 2 && esDecimal(token) != 1 && esHexadecimal(token) != 1) {
-                printf("ERROR LEXICO OCTAL: %s\n", token);
-                countError++;
-        } else if(esHexadecimal(token) == 2 && esDecimal(token) != 1 && esOctal(token) != 1) {
-                printf("ERROR LEXICO HEXADECIMAL: %s\n", token);
-                countError++;
+        if (esDecimal(token) == 1) {
+            countDecimal++;
+        } else if (esOctal(token) == 1) {
+            countOctal++;
+        } else if (esHexadecimal(token) == 1) {
+            countHex++;
+        } else if (esDecimal(token) == 2 || esOctal(token) == 2 || esHexadecimal(token) == 2) {
+            countError++;
         }
         token = strtok(NULL, "#");
+        if(token != NULL)
+            token[strlen(token)] = '#'; 
     }
 
     printf("\nResumen:\n");
+    printf("Octales: %d\n", countOctal);
     printf("Decimales: %d\n", countDecimal);
+    printf("Hexadecimales: %d\n", countHex);
     printf("Errores: %d\n", countError);
 }
 
