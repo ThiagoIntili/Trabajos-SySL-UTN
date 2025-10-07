@@ -536,6 +536,27 @@ void operar_expresion(char* expresion){
 
     printf("Resultado: %s",operarPolacaInversa(cantTokens,tokens));
 
+} 
+
+// leer archivo para el inciso 1 
+
+
+int leer_archivo_completo(const char* nombreArchivo, char* cadena, int max_len) {
+    FILE* archivo = fopen(nombreArchivo, "r");
+    if (!archivo) {
+        printf("Error: No se pudo abrir el archivo '%s'\n", nombreArchivo);
+        return 0;
+    }
+
+    int total = 0;
+    int c;
+    while ((c = fgetc(archivo)) != EOF && total < max_len - 1) {
+        cadena[total++] = (char)c;
+    }
+    cadena[total] = '\0';
+
+    fclose(archivo);
+    return 1;
 }
 
 int main() {
@@ -547,9 +568,10 @@ int main() {
     printf("TP AUTOMATAS - SINTAXIS Y SEMANTICA DE LOS LENGUAJES\n\n");
     printf("Seleccione una opcion:\n");
     printf("1. Analizar cadena con numeros\n");
-    printf("2. Evaluar expresion aritmetica dada por terminal\n");
-    printf("3. Evaluar expresion aritmetica ingresada por archivo\n");
-    printf("4. Salir\n");
+    printf("2. Analizar cadena con numeros a traves de archivo\n");
+    printf("3. Evaluar expresion aritmetica dada por terminal\n");
+    printf("4. Evaluar expresion aritmetica ingresada por archivo\n");
+    printf("5. Salir\n");
     printf("\nOpcion: ");
     scanf("%d", &opcion);
 
@@ -559,12 +581,19 @@ int main() {
             leer_cadena_numerica(cadena);
             analizarCadena(cadena);
             break;
+        } 
+        case 2: {
+            char cadena[MAX_LINE];
+            leer_nombre_archivo(nombreArchivo);
+            leer_archivo_completo(nombreArchivo, cadena, MAX_LINE);
+            analizarCadena(cadena);
+            break;
         }
-        case 2:
+        case 3:
             leer_expresion(expresion);
             operar_expresion(expresion);
             break;
-        case 3:
+        case 4:
             leer_nombre_archivo(nombreArchivo);
             leer_expresion(expresion);
             crear_archivo(nombreArchivo,expresion);
@@ -572,7 +601,7 @@ int main() {
             leer_expresion_archivo(expresion, nombreArchivo);
             operar_expresion(expresion);
             break;
-        case 4:
+        case 5:
             printf("\nSaliendo...\n");
             break;
         default:
