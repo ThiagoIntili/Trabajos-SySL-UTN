@@ -39,14 +39,14 @@ int columnaDec(char c) {
 }
 
 int columna(char c) {
-    char nums[12] = {'A','B','C','D','E','F','a','b','c','d','e','f'};
+    char nums[12] = {'A','B','C','D','E','F'};
     if(c == '0')
         return 0;
     if(isdigit(c) || es_miembro(c, nums , 12))
         return 2;
     if(c == '#')
     return 3;
-    if(c == 'x' || c == 'X') {
+    if(c == 'x') {
         return 1;
     } else 
         return 4;
