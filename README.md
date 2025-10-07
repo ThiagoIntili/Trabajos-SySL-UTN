@@ -5,7 +5,7 @@ Repositorio para los trabajos grupales de SySL
 
 Curso: K2101  <br>
 Año: 2025 // Materia anual  <br>
-Numero de Equipo:   <br> 
+Numero de Equipo: 10  <br> 
 Nombre del equipo:   <br> 
 ## Integrantes 
 <lo>
