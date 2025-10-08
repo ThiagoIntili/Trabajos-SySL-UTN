@@ -2,6 +2,7 @@
 #include <stdlib.h>     // Para funciones de utilidad general (no se usa explícitamente, pero es común para exit, malloc, etc.)
 #include <ctype.h>      // Para funciones de manejo de caracteres como isdigit, isxdigit
 #include <string.h>     // Para funciones de manejo de cadenas como strcpy, strtok, strlen, strcspn
+#include "infijaToPostfija.c"
 
 #define MAX_BUFFER 100
 #define MAX_TOKENS 100
@@ -179,98 +180,6 @@ void analizarCadena(char* cadena) {
     printf("Errores: %d\n", countError);
 }
 
-typedef struct pila{
-      int indice;
-      int total;
-      char datos[MAX_ELEMENTOS][MAX_LEN];
-}Pila;
-
-Pila *crear(){
-	Pila *p;
-	p=(Pila *)malloc(sizeof(Pila));
-	p->indice=0;
-	p->total=0;
-	return p;
-}
-
-int estaVacia(Pila pila){
-	if(pila.total==0){
-		return 1;
-	}else{
-		return 0;
-	}
-}
-
-int estaLlena(Pila pila){
-	if(pila.total==MAX_ELEMENTOS){
-		return 1;
-	}else{
-		return 0;
-	}
-}
-
-int push(Pila *pila, char* dato){ //chau Pila *pila, char dato
-	if(pila->total<MAX_ELEMENTOS){
-		strcpy(pila->datos[pila->indice], dato);//pila->datos[pila->indice]=dato;
-		pila->indice++;
-		pila->total++;
-		return 1;
-	}else{
-		return 0;
-	}
-}
-
-int pop(Pila *pila, char* buffer){
-    if (pila->total > 0) {
-        strcpy(buffer, pila->datos[pila->indice - 1]);
-        pila->indice--;
-        pila->total--;
-        return 1;
-    } else {
-        return 0;
-    }
-}
-int nivelDePrecedencia(char* operador){
-	if(strcmp(operador, "(") == 0){
-	    return 0;
-	}
-	if(strcmp(operador, "+") == 0 || strcmp(operador, "-") == 0){
-	    return 1;
-	}
-
-	if(strcmp(operador, "*") == 0 || strcmp(operador, "/") == 0){
-	    return 2;
-	}
-	if(strcmp(operador, "$") == 0){
-	    return 3;
-	}
-
-    return -1;
-}
-
-int tieneMayorOIgualPrioridad(char* operador1, char* operador2){
-	int precedenciaPrimerOperador=nivelDePrecedencia(operador1);
-	int precedenciaSegundoOperador=nivelDePrecedencia(operador2);
-	if(precedenciaPrimerOperador>=precedenciaSegundoOperador){
-		return 1;
-	}else{
-		return 0;
-	}
-}
-
-int esOperador(char* elemento){
-	if(strcmp(elemento, "+") == 0 ||
-	   strcmp(elemento, "-") == 0 ||
-	   strcmp(elemento, "*") == 0 ||
-	   strcmp(elemento, "/") == 0 ||
-	   strcmp(elemento, "$") == 0
-	   ){
-		return 1;
-	}else{
-		return 0;
-	}
-}
-
 // Función inciso 2
 int char_a_int(char c) {
     if (c >= '0' && c <= '9') {
@@ -309,71 +218,6 @@ int es_operador(char caracter) {
         return 1;
     }
     return 0;
-}
-
-int esOperando(char* elemento){ //char elemento chau
-    if(string_a_int(elemento)!=-1){
-        return 1;
-    }else{
-        return 0;
-    }
-}
-
-int infijaToPostfija(char infija[][MAX_LEN], int longitud,char postfija[][MAX_LEN]){ //chau: char* infija[]
-
-	char elemento[MAX_LEN],operador[MAX_LEN];
-	int j=0;
-	int i=0;
-	Pila *pila=crear();
-
-	//int longitud= strlen(infija);
-
-	while (i<longitud){
-		//elemento = infija[i];
-		strcpy(elemento, infija[i]);
-		i++;
-
-		if(esOperando(elemento)){
-			strcpy(postfija[j], elemento);
-			j++;
-		}else if (esOperador(elemento)){
-			if(!estaVacia(*pila)){
-				int seDebeContinuar;
-				do{
-					int value=pop(pila,operador);//operador=pop(pila);
-				    if(tieneMayorOIgualPrioridad(operador, elemento)){
-						//postfija[j]=operador;
-						strcpy(postfija[j], operador);
-						j++;
-						seDebeContinuar=1;
-					}else{
-						seDebeContinuar=0;
-						push(pila,operador);
-					}
-				}while(!estaVacia(*pila) && seDebeContinuar);
-			}
-			push(pila,elemento);
-		}else if (strcmp(elemento,"(") == 0){
-			push(pila,elemento);
-		}else if (strcmp(elemento,")") == 0){
-			int value=pop(pila,operador);
-			while(!estaVacia(*pila) && strcmp(operador,"(") != 0) {
-				strcpy(postfija[j], operador);
-				j++;
-				int value=pop(pila,operador);//operador=pop(pila);
-			}
-		}
-	}
-	while(!estaVacia(*pila)) {
-		int value=pop(pila,operador);//operador=pop(pila);
-		strcpy(postfija[j], operador);//postfija[j]=operador;
-		//printf("--nroEntre: %s\n",postfija[j]);
-		j++;
-	}
-	//postfija[j]='\0';
-    //return postfija;
-    free(pila);
-    return j;
 }
 
 //funcion para tokenizar la expresión
