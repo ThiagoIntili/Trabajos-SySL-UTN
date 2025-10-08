@@ -2,7 +2,6 @@
 #include <stdlib.h>     // Para funciones de utilidad general (no se usa explícitamente, pero es común para exit, malloc, etc.)
 #include <ctype.h>      // Para funciones de manejo de caracteres como isdigit, isxdigit
 #include <string.h>     // Para funciones de manejo de cadenas como strcpy, strtok, strlen, strcspn
-#include <stdbool.h>    // Para usar el tipo de dato bool y los valores true/false
 
 #define MAX_BUFFER 100
 #define MAX_TOKENS 100
@@ -27,16 +26,20 @@ void agregar_a_palabra(char* palabra, char c) {
 }
 
 int columnaDec(char c) {
+    if(c=='#')
+        return 3;
+
     if(c == '-')
         return 0;
+
     if(c == '0')
         return 1;
+
     if(isdigit(c))
         return 2;
-    if(c == '#')
-        return 3;
     return 4;
 }
+
 
 int columna(char c) {
     char nums[12] = {'A','B','C','D','E','F'};
@@ -48,7 +51,7 @@ int columna(char c) {
     return 3;
     if(c == 'x') {
         return 1;
-    } else 
+    } else
         return 4;
 }
 
@@ -75,7 +78,9 @@ int esDecimal(char* cadena) {
     int e = 0; // estado inicial
     int i = 0; // índice del carácter actual
     int c = cadena[i]; // carácter actual
+
     while(c!='\0') {
+
         e = ttdec[e][columnaDec(c)];
         if(c != '#')
             agregar_a_palabra(palabra, c);
@@ -164,7 +169,7 @@ void analizarCadena(char* cadena) {
         }
         token = strtok(NULL, "#");
         if(token != NULL)
-            token[strlen(token)] = '#'; 
+            token[strlen(token)] = '#';
     }
 
     printf("\nResumen:\n");
@@ -299,12 +304,14 @@ int string_a_int(char* expresion) {
     return resultado;
 }
 
-bool es_operador(char caracter) {
-    return (caracter == '+' || caracter == '-' || caracter == '*' || caracter == '/');
+int es_operador(char caracter) {
+    if((caracter == '+' || caracter == '-' || caracter == '*' || caracter == '/')){
+        return 1;
+    }
+    return 0;
 }
 
 int esOperando(char* elemento){ //char elemento chau
-
     if(string_a_int(elemento)!=-1){
         return 1;
     }else{
@@ -370,31 +377,38 @@ int infijaToPostfija(char infija[][MAX_LEN], int longitud,char postfija[][MAX_LE
 }
 
 //funcion para tokenizar la expresión
+int esHexadigito(char c){
+    return ((c>='A' && c<='F') || isdigit(c));
+}
 int tokenizar(const char* expresion, char tokens[MAX_TOKENS][MAX_LEN]) {
     int i = 0;
     int num_tokens = 0;
 
     while (expresion[i] != '\0') {
+        int j = 0;
+        if(expresion[i]=='0' && expresion[i+1]=='x'){
+            tokens[num_tokens][j++]=expresion[i++]; //para 0
+            tokens[num_tokens][j++]=expresion[i++]; //para x
+            while(esHexadigito(expresion[i])){
+                tokens[num_tokens][j++] = expresion[i++];
+            }
+            tokens[num_tokens][j] = '\0';
+            num_tokens++;
+        }else if (isdigit(expresion[i]) || (expresion[i] == '-' && i == 0)) {
 
-        if (isdigit(expresion[i]) || (expresion[i] == '-' && i == 0)) {
-            int j = 0;
 
             if(expresion[i] == '-') {
-                tokens[num_tokens][j] = expresion[i];
-                j++;
-                i++;
+                tokens[num_tokens][j++] = expresion[i++];
             }
 
             while (isdigit(expresion[i])) {
-                tokens[num_tokens][j] = expresion[i];
-                j++;
-                i++;
+                tokens[num_tokens][j++] = expresion[i++];
             }
             tokens[num_tokens][j] = '\0';
             num_tokens++;
         }
 
-        else if (es_operador(expresion[i])){
+        else if (es_operador(expresion[i])==1){
             tokens[num_tokens][0] = expresion[i];
             tokens[num_tokens][1] = '\0';
             num_tokens++;
@@ -518,7 +532,7 @@ char* operarPolacaInversa(int cantTokens,char tokens[MAX_TOKENS][MAX_LEN]){
     //evaluamos cada componente y segun el operadora, operamos aritmeticamente
     for (int k = 0; k < cantTokens; k++) {
         token=popToken(&pila);
-        if(!esOperador(token)){
+        if(esOperador(token)==0){
             pushToken(&pilaAux,token);
         }else{
             operarSegunOperador(token,popToken(&pilaAux),popToken(&pilaAux),resultado);
@@ -536,32 +550,27 @@ void operar_expresion(char* expresion){
 
     printf("Resultado: %s",operarPolacaInversa(cantTokens,tokens));
 
-} 
+}
 
-// leer archivo para el inciso 1 
-
-
-int leer_archivo_completo(const char* nombreArchivo, char* cadena, int max_len) {
-    FILE* archivo = fopen(nombreArchivo, "r");
-    if (!archivo) {
-        printf("Error: No se pudo abrir el archivo '%s'\n", nombreArchivo);
-        return 0;
+int evaluar_expresion(char* expresion){
+    char tokens[MAX_TOKENS][MAX_LEN];
+    int cantTokens=0,i=0;
+    cantTokens = tokenizar(expresion, tokens);
+    for(i;i<cantTokens;i++){
+        if(esOperador(tokens[i])==0){
+            strcat(tokens[i],"#");
+            if(esDecimal(tokens[i])!=1){
+                return 0;
+            }
+        }
     }
-
-    int total = 0;
-    int c;
-    while ((c = fgetc(archivo)) != EOF && total < max_len - 1) {
-        cadena[total++] = (char)c;
-    }
-    cadena[total] = '\0';
-
-    fclose(archivo);
     return 1;
 }
 
 int main() {
 
     char expresion[MAX_BUFFER];
+    char expresion_evaluada[MAX_BUFFER];
     char nombreArchivo[MAX_BUFFER];
     int opcion;
 
@@ -581,25 +590,38 @@ int main() {
             leer_cadena_numerica(cadena);
             analizarCadena(cadena);
             break;
-        } 
+        }
         case 2: {
             char cadena[MAX_LINE];
             leer_nombre_archivo(nombreArchivo);
-            leer_archivo_completo(nombreArchivo, cadena, MAX_LINE);
+            leer_cadena_numerica(cadena);
+            crear_archivo(nombreArchivo,cadena);
+            leer_expresion_archivo(expresion, nombreArchivo);
             analizarCadena(cadena);
             break;
         }
         case 3:
             leer_expresion(expresion);
-            operar_expresion(expresion);
+            strcpy(expresion_evaluada,expresion); //evaluamos, como la función modifica la expresion la evaluamos en un auxiliar
+            if(evaluar_expresion(expresion_evaluada)==1){
+                operar_expresion(expresion);
+            }else{
+                printf("La expresión ingresada no posee decimales");
+            }
+
             break;
         case 4:
             leer_nombre_archivo(nombreArchivo);
             leer_expresion(expresion);
             crear_archivo(nombreArchivo,expresion);
-
             leer_expresion_archivo(expresion, nombreArchivo);
-            operar_expresion(expresion);
+
+            strcpy(expresion_evaluada,expresion); //evaluamos, como la función modifica la expresion la evaluamos en un auxiliar
+            if(evaluar_expresion(expresion_evaluada)==1){
+                operar_expresion(expresion);
+            }else{
+                printf("La expresión ingresada no posee decimales");
+            }
             break;
         case 5:
             printf("\nSaliendo...\n");
