@@ -1,7 +1,7 @@
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
-	#include "y.tab.h"
+	#include "bisonBasico.tab.h"
 %}
 DIGITO [0-9]
 
@@ -13,7 +13,7 @@ constEntera {DIGITO}({DIGITO})*
 %%
 ":=" {return ASIGNACION;}
 {constEntera} {yylval.num=atoi(yytext);return CONSTANTE;}
-{IDENTIFICADOR} {return ID;}
+{IDENTIFICADOR} { yylval.cadena = strdup(yytext); return ID; }
 ";" {return PYCOMA;}
 "(" {return PARENIZQUIERDO;}
 ")" {return PARENDERECHO;}
