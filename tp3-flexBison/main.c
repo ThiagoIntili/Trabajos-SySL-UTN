@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main()
+/* Declaración del parser generado por Bison */
+int yyparse(void);
+
+int main(void)
 {
-    printf("Hello world!\n");
-    return 0;
+    int ret = yyparse();
 }

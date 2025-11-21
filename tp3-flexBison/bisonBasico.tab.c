@@ -76,7 +76,7 @@ extern char *yytext;
 extern int yyleng;
 extern int yylex(void);
 extern void yyerror(char*);
-/* Prototipos de rutinas semánticas (definidas en el epílogo) */
+/* Prototipos de rutinas semánticas */
 int detectar_redeclaracion(const char *id);
 int detectar_uso_no_declarado(const char *id);
 int variable=0;
@@ -645,7 +645,7 @@ enum { YYENOMEM = -2 };
       }                                                           \
     else                                                          \
       {                                                           \
-        yyerror (YY_("syntax error: cannot back up")); \
+        yyerror (YY_("error sintactico no se puede volver")); \
         YYERROR;                                                  \
       }                                                           \
   while (0)
@@ -1145,7 +1145,7 @@ yyerrlab:
   if (!yyerrstatus)
     {
       ++yynerrs;
-      yyerror (YY_("syntax error"));
+      yyerror (YY_("error sintactico"));
     }
 
   if (yyerrstatus == 3)
@@ -1293,9 +1293,6 @@ yyreturnlab:
 
 #line 37 "bisonBasico.y"
 
-int main() {
-yyparse();
-}
 void yyerror (char *s){
 printf ("mi error es %s\n",s);
 }
@@ -1321,7 +1318,7 @@ int detectar_redeclaracion(const char *id) {
     for (int i = 0; i < symbol_count_c; ++i) {
         if (strcmp(symbol_table_c[i], id) == 0) {
             /* redeclaración */
-            fprintf(stderr, "ERROR SEMÁNTICO: La variable '%s' ya ha sido declarada.\n", id);
+            yyerror("error semantico, hiciste una redeclaracion");
             return 1;
         }
     }
@@ -1346,8 +1343,9 @@ int detectar_redeclaracion(const char *id) {
 int detectar_uso_no_declarado(const char *id) {
     if (id == NULL) return 1;
     for (int i = 0; i < symbol_count_c; ++i) {
-        if (strcmp(symbol_table_c[i], id) == 0) return 0;
+        if (strcmp(symbol_table_c[i], id) == 0) return 0; 
     }
-    fprintf(stderr, "ERROR SEMÁNTICO: La variable '%s' no ha sido declarada.\n", id);
+    printf("la variable %s no ha sido declarada", id);
+    yyerror("error semantico");
     return 1;
 }

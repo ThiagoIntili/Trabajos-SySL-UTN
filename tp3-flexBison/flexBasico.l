@@ -19,4 +19,6 @@ constEntera {DIGITO}({DIGITO})*
 ")" {return PARENDERECHO;}
 "+" {return SUMA;}
 "-" {return RESTA;}
+[ \t\r\n]+    { /* ignorar espacios en blanco */ }
+.               { fprintf(stderr, "mi error es error lexico '%s'\n", yytext); exit(1); }
 %%
