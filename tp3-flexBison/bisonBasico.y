@@ -10,33 +10,60 @@ extern void yyerror(char*);
 int detectar_redeclaracion(const char *id);
 int detectar_uso_no_declarado(const char *id);
 int variable=0;
+int resultado=0;
+int erroresSintacticos=0;
 %}
 %union{
    char* cadena;
    int num;
 } 
+%token INICIO FIN LEER ESCRIBIR COMA
 %token ASIGNACION PYCOMA SUMA RESTA PARENIZQUIERDO PARENDERECHO
 %token <cadena> ID
 %token <num> CONSTANTE
+%type <num> expresion operadorAditivo primaria
 %%
+programa: INICIO sentencias FIN
 sentencias: sentencias sentencia 
 |sentencia 
 ;
-sentencia: ID { printf("el id es: %s de longitud: %d ", $1, yyleng); if (yyleng>10) yyerror("metiste la pata"); /* declarar/insertar variable en tabla (detecta redeclaracion) */ detectar_redeclaracion($1); free($1); } ASIGNACION expresion PYCOMA
+
+sentencia: ID { printf("el id es: %s\nde longitud: %d\n", $1, yyleng); if (yyleng>10) yyerror("metiste la pata"); /* declarar/insertar variable en tabla (detecta redeclaracion) */ detectar_redeclaracion($1); free($1); } ASIGNACION expresion PYCOMA 
+|LEER PARENIZQUIERDO identificadores PARENDERECHO PYCOMA {printf("Leido con exito")}
+|ESCRIBIR PARENIZQUIERDO expresiones PARENDERECHO PYCOMA {printf("Escrito con exito")}
 ;
+
+identificadores: identificadores ID
+|COMA ID
+;
+
+expresiones: expresion
+;
+
 expresion: primaria 
-|expresion operadorAditivo primaria 
+|expresion operadorAditivo primaria {
+	if($2=='+'){
+		resultado=$1+$3;
+	}else{
+		resultado=$1+$3;
+	}
+}
 ; 
-primaria: ID { /* uso de variable en expresion: verificar declaracion previa */ detectar_uso_no_declarado($1); free($1); }
-| CONSTANTE { printf("valores %d ", $1); }
-| PARENIZQUIERDO expresion PARENDERECHO
+primaria: ID { /* uso de variable en expresion: verificar declaracion previa */ 
+	if(detectar_uso_no_declarado($1)==0){
+		$$=atoi($1); /*lo convierte a nro para sumas*/
+	};free($1); }
+|CONSTANTE { printf("valores %d\n\n", $1);$$=$1 }
+|PARENIZQUIERDO expresion PARENDERECHO {$$=$2}
 ;
-operadorAditivo: SUMA 
-| RESTA
+operadorAditivo: SUMA { $$ = '+'; }
+|RESTA { $$ = '-'; }
 ;
+
 %%
 void yyerror (char *s){
-printf ("mi error es %s\n",s);
+	erroresSintacticos++;
+	printf ("mi error Es %s\n",s);
 }
 int yywrap()  {
   return 1;  
@@ -90,4 +117,9 @@ int detectar_uso_no_declarado(const char *id) {
     printf("la variable %s no ha sido declarada ", id);
     yyerror("error semantico");
     return 1;
+}
+int main(){
+	int ret = yyparse();
+    printf("Se encontraron %d errores sintácticos\n", erroresSintacticos);
+    return ret;
 }
